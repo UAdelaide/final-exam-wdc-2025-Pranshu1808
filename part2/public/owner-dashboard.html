@@ -9,9 +9,10 @@
 </head>
 <body class="bg-light">
   <div id="app" class="container py-4">
-    <h1 class="mb-4 text-primary">Owner Dashboard</h1>
-
-    <!-- Walk request form -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="text-primary mb-0">Owner Dashboard</h1>
+      <button id="logoutBtn" class="btn btn-outline-danger">Logout</button>
+    </div>
     <div class="card mb-4">
       <div class="card-header bg-primary text-white">
         Create New Walk Request
@@ -19,8 +20,13 @@
       <div class="card-body">
         <form @submit.prevent="submitWalkRequest">
           <div class="mb-3">
-            <label class="form-label">Dog ID</label>
-            <input v-model="form.dog_id" type="number" class="form-control" required>
+            <label class="form-label">Select Your Dog</label>
+            <select v-model="form.dog_id" class="form-select" required>
+              <option value="">-- Choose a dog --</option>
+              <option v-for="dog in myDogs" :key="dog.dog_id" :value="dog.dog_id">
+                {{ dog.name }}
+              </option>
+            </select>
           </div>
           <div class="mb-3">
             <label class="form-label">Requested Date & Time</label>
@@ -38,12 +44,8 @@
         </form>
       </div>
     </div>
-
-    <!-- Success or error messages -->
     <div v-if="message" class="alert alert-info">{{ message }}</div>
     <div v-if="error" class="alert alert-danger">{{ error }}</div>
-
-    <!-- List of walk requests -->
     <h2 class="mb-3">My Walk Requests</h2>
     <div class="row" v-if="walks.length > 0">
       <div class="col-md-6 mb-4" v-for="walk in walks" :key="walk.request_id">
@@ -63,7 +65,6 @@
     </div>
     <p v-else>No walk requests yet.</p>
   </div>
-
   <script>
     const { createApp, ref, onMounted } = Vue;
 
@@ -77,6 +78,7 @@
         });
 
         const walks = ref([]);
+        const myDogs = ref([]);
         const message = ref('');
         const error = ref('');
 
@@ -86,6 +88,15 @@
             walks.value = await res.json();
           } catch (err) {
             error.value = 'Failed to load walk requests';
+          }
+        }
+
+        async function loadMyDogs() {
+          try {
+            const res = await fetch('/api/my-dogs');
+            myDogs.value = await res.json();
+          } catch (err) {
+            myDogs.value = [];
           }
         }
 
@@ -117,11 +128,13 @@
 
         onMounted(() => {
           loadWalks();
+          loadMyDogs();
         });
 
         return {
           form,
           walks,
+          myDogs,
           message,
           error,
           submitWalkRequest
@@ -129,7 +142,19 @@
       }
     }).mount('#app');
   </script>
-
+  <script>
+    document.getElementById('logoutBtn').onclick = function() {
+      fetch('/api/logout', { method: 'POST', credentials: 'include' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = 'index.html';
+          } else {
+            alert('Logout failed!');
+          }
+        });
+    };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

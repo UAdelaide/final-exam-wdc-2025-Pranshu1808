@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dog of the Day</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    body {
+      background: #f5f5dc; /* Beige */
+      font-family: Arial, Helvetica, sans-serif;
+      color: #2d2d2d;
+      margin: 0;
+      padding: 0;
+      font-size: 22px; /* Larger base font */
+    }
+    .dog-container {
+      max-width: 600px;
+      margin: 60px auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+      padding: 48px 30px 36px 30px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.8em;
+      color: #695e42;
+      margin-bottom: 28px;
+      letter-spacing: 1px;
+    }
+    img {
+      border-radius: 14px;
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      margin-bottom: 28px;
+    }
+    .small-text {
+      font-size: 1.3em;
+      color: #5d5d4e;
+      margin-bottom: 36px;
+    }
+    .button {
+      font-size: 1.4em;
+      background: #695e42;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 18px 50px;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: bold;
+    }
+    .button:hover, .button:focus {
+      background: #8d7b53;
+      outline: 2px solid #695e42;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="dog-container">
+      <h1>Dog of the Day</h1>
+      <img :src="dogImage" alt="Random Dog of the Day photo">
+      <div class="small-text">
+        <span>Breed: Unknown</span> | <span>Age: --</span>
+      </div>
+      <button class="button" @click="getDog">Get Another Dog</button>
+    </div>
+  </div>
+  <script>
+    const { createApp } = Vue;
+    createApp({
+      data() {
+        return {
+          dogImage: ''
+        }
+      },
+      mounted() {
+        this.getDog();
+      },
+      methods: {
+        getDog() {
+          fetch('https://dog.ceo/api/breeds/image/random')
+            .then(res => res.json())
+            .then(data => {
+              this.dogImage = data.message;
+            });
+        }
+      }
+    }).mount('#app')
+  </script>
+</body>
+</html>
